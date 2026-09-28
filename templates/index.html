@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Assistant AI</title>
+    <style>
+        :root {
+            --bg: #070b10;
+            --panel: rgba(15, 21, 29, 0.9);
+            --panel-2: #111821;
+            --line: rgba(255,255,255,.09);
+            --text: #f4f7fb;
+            --muted: #8d99a9;
+            --accent: #00c2ff;
+            --accent-2: #66dcff;
+            --user: #192431;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system,
+                BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 85% 10%, rgba(0,194,255,.15), transparent 28%),
+                radial-gradient(circle at 8% 90%, rgba(0,194,255,.06), transparent 25%),
+                var(--bg);
+            overflow: hidden;
+        }
+
+        .app {
+            width: min(1120px, 94vw);
+            height: min(92vh, 820px);
+            margin: 4vh auto;
+            display: grid;
+            grid-template-columns: 285px 1fr;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 30px 100px rgba(0,0,0,.5);
+            backdrop-filter: blur(20px);
+        }
+
+        aside {
+            padding: 30px 24px;
+            background:
+                linear-gradient(180deg, rgba(0,194,255,.10), rgba(8,12,17,.55));
+            border-right: 1px solid var(--line);
+            position: relative;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: -.3px;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: #031017;
+            background: linear-gradient(135deg, var(--accent), #a6edff);
+            box-shadow: 0 10px 35px rgba(0,194,255,.22);
+            font-size: 20px;
+            font-weight: 950;
+        }
+
+        .tag {
+            margin: 40px 0 12px;
+            color: var(--accent-2);
+            font-size: 10px;
+            font-weight: 850;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 33px;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+
+        .intro {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+            margin: 16px 0 28px;
+        }
+
+        .topics {
+            display: grid;
+            gap: 9px;
+        }
+
+        .topic {
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            color: #c9d1dc;
+            font-size: 12px;
+            background: rgba(255,255,255,.025);
+        }
+
+        .status {
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #45e18b;
+            box-shadow: 0 0 14px #45e18b;
+        }
+
+        main {
+            min-width: 0;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        header {
+            padding: 22px 28px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-title {
+            font-size: 14px;
+            font-weight: 750;
+        }
+
+        .header-subtitle {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .badge {
+            color: var(--accent-2);
+            border: 1px solid rgba(0,194,255,.25);
+            background: rgba(0,194,255,.07);
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        #chat {
+            padding: 28px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            display: flex;
+            gap: 11px;
+            margin-bottom: 20px;
+            animation: rise .22s ease-out;
+        }
+
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(7px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .avatar {
+            flex: 0 0 34px;
+            width: 34px;
+            height: 34px;
+            border-radius: 11px;
+            display: grid;
+            place-items: center;
+            font-size: 11px;
+            font-weight: 850;
+            background: #1a222d;
+            border: 1px solid var(--line);
+        }
+
+        .bot .avatar {
+            background: linear-gradient(135deg, var(--accent), #83e6ff);
+            color: #031017;
+            border: 0;
+        }
+
+        .bubble {
+            max-width: min(730px, 86%);
+            padding: 13px 15px;
+            border-radius: 16px;
+            background: var(--panel-2);
+            border: 1px solid var(--line);
+            color: #dfe6ef;
+            font-size: 13px;
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+        .user {
+            justify-content: flex-end;
+        }
+
+        .user .bubble {
+            order: -1;
+            background: var(--user);
+        }
+
+        .composer {
+            padding: 18px 22px 22px;
+            border-top: 1px solid var(--line);
+            background: rgba(7,11,16,.72);
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            padding: 8px;
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            background: #0e151d;
+        }
+
+        textarea {
+            flex: 1;
+            min-height: 42px;
+            max-height: 120px;
+            resize: none;
+            border: 0;
+            outline: 0;
+            color: var(--text);
+            background: transparent;
+            padding: 11px 10px;
+            font: inherit;
+            font-size: 13px;
+        }
+
+        textarea::placeholder { color: #657182; }
+
+        button {
+            width: 46px;
+            border: 0;
+            border-radius: 12px;
+            color: #031017;
+            background: linear-gradient(135deg, var(--accent), #7fe6ff);
+            cursor: pointer;
+            font-size: 17px;
+            transition: transform .15s, filter .15s;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .hint {
+            text-align: center;
+            color: #626d7b;
+            font-size: 10px;
+            margin-top: 9px;
+        }
+
+        .typing {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 760px) {
+            body { overflow: auto; }
+
+            .app {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                border-radius: 0;
+                grid-template-columns: 1fr;
+            }
+
+            aside { display: none; }
+            #chat { padding: 20px 16px; }
+            header { padding: 18px 16px; }
+            .composer { padding: 14px 12px; }
+            .badge { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside>
+            <div class="brand">
+                <div class="logo">C</div>
+                <span>CAR ASSISTANT AI</span>
+            </div>
+
+            <div class="tag">Automotive learning</div>
+
+            <h1>Understand<br>the machine.</h1>
+
+            <p class="intro">
+                A dedicated educational assistant for learning about cars,
+                automotive systems, engineering concepts, diagnostics,
+                performance, and safe maintenance theory.
+            </p>
+
+            <div class="topics">
+                <div class="topic">⚙ Engine & transmission</div>
+                <div class="topic">🛞 Suspension & tyres</div>
+                <div class="topic">🛑 Braking & safety</div>
+                <div class="topic">⚡ Electrical & electronics</div>
+            </div>
+
+            <div class="status">
+                <span class="dot"></span>
+                Gemini learning engine online
+            </div>
+        </aside>
+
+        <main>
+            <header>
+                <div>
+                    <div class="header-title">Car Study Assistant</div>
+                    <div class="header-subtitle">
+                        Ask technical and educational automotive questions
+                    </div>
+                </div>
+                <div class="badge">GEMINI 3.1 FLASH-LITE</div>
+            </header>
+
+            <section id="chat">
+                <div class="message bot">
+                    <div class="avatar">C</div>
+                    <div class="bubble">
+                        Hi! I'm Car Assistant AI. Ask me about learning cars,
+                        automotive systems, engineering, performance, diagnostics,
+                        or safe maintenance theory.
+                    </div>
+                </div>
+            </section>
+
+            <div class="composer">
+                <form id="chatForm">
+                    <textarea
+                        id="message"
+                        rows="1"
+                        placeholder="Ask a car-related study question..."
+                        autocomplete="off"
+                    ></textarea>
+                    <button id="sendBtn" type="submit" aria-label="Send">➤</button>
+                </form>
+                <div class="hint">
+                    Car Assistant AI answers only within its defined study scope.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const form = document.getElementById("chatForm");
+        const input = document.getElementById("message");
+        const chat = document.getElementById("chat");
+        const sendBtn = document.getElementById("sendBtn");
+
+        function addMessage(text, type) {
+            const wrapper = document.createElement("div");
+            wrapper.className = `message ${type}`;
+
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.textContent = type === "bot" ? "C" : "YOU";
+
+            const bubble = document.createElement("div");
+            bubble.className = "bubble";
+            bubble.textContent = text;
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(bubble);
+            chat.appendChild(wrapper);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function addTyping() {
+            const wrapper = document.createElement("div");
+            wrapper.className = "message bot";
+            wrapper.id = "typing";
+
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.textContent = "C";
+
+            const bubble = document.createElement("div");
+            bubble.className = "bubble typing";
+            bubble.textContent = "Thinking...";
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(bubble);
+            chat.appendChild(wrapper);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const message = input.value.trim();
+            if (!message) return;
+
+            addMessage(message, "user");
+            input.value = "";
+            input.style.height = "auto";
+            sendBtn.disabled = true;
+            addTyping();
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message })
+                });
+
+                const data = await response.json();
+                document.getElementById("typing")?.remove();
+
+                if (!response.ok) {
+                    addMessage(
+                        data.error || "Something went wrong.",
+                        "bot"
+                    );
+                } else {
+                    addMessage(data.answer, "bot");
+                }
+            } catch {
+                document.getElementById("typing")?.remove();
+                addMessage(
+                    "Unable to reach the server. Please try again.",
+                    "bot"
+                );
+            } finally {
+                sendBtn.disabled = false;
+                input.focus();
+            }
+        });
+
+        input.addEventListener("input", () => {
+            input.style.height = "auto";
+            input.style.height =
+                Math.min(input.scrollHeight, 120) + "px";
+        });
+
+        input.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                form.requestSubmit();
+            }
+        });
+    </script>
+</body>
+</html>
